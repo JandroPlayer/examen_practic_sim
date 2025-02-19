@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "742360232394",
+    "firebase_url": "https://examenpracticsim-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "examenpracticsim",
+    "storage_bucket": "examenpracticsim.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742360232394:android:4d917cc2ebf771c9e55f33",
+        "android_client_info": {
+          "package_name": "com.example.examen_practic_sim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwQVWOMpAy0PRvxAVJRxLcRIOsozd4too"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
