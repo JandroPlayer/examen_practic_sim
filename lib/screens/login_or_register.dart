@@ -184,28 +184,34 @@ class _LoginOrRegisterScreenState extends State<LoginOrRegisterScreen>
   }
 
   _loginRegisterRequest() async {
-    if (_key.currentState!.validate()) {
-      _key.currentState!.save();
-      // Aquí es donde se hace la petición de login
-      await loginProvider.loginOrRegister(_correu, _passwd);
-      missatge = 'Gràcies \n $_correu \n $_passwd';
+  if (_key.currentState!.validate()) {
+    _key.currentState!.save();
+    // Aquí es donde se hace la petición de login
+    await loginProvider.loginOrRegister(_correu, _passwd);
 
-      if (loginProvider.accesGranted) {
-        // Guardar las credenciales si "Recordarme" está activado
-        if (_isChecked) {
-          saveUserCredentials(_correu!, _passwd!, _isChecked);
-        }
+    if (loginProvider.accesGranted) {
+      // Mostrar un SnackBar de éxito después del login
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('¡Login exitoso! Bienvenido, $_correu'),
+        duration: Duration(seconds: 2), // Duración del SnackBar
+      ));
 
-        // Redirigir a la pantalla principal
-        Navigator.of(context).pushReplacementNamed('home', arguments: missatge);
-      } else {
-        // Si no se concedió acceso, mostrar el mensaje de error
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(loginProvider.errorMessage),
-        ));
+      // Guardar las credenciales si "Recordarme" está activado
+      if (_isChecked) {
+        saveUserCredentials(_correu!, _passwd!, _isChecked);
       }
+
+      // Redirigir a la pantalla principal
+      Navigator.of(context).pushReplacementNamed('home');
+    } else {
+      // Si no se concedió acceso, mostrar el mensaje de error
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(loginProvider.errorMessage),
+      ));
     }
   }
+}
+
 
   void saveUserCredentials(String email, String password, bool rememberMe) async {
     final prefs = await SharedPreferences.getInstance();
