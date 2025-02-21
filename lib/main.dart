@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:examen_practic_sim/screens/home_screen.dart';
-import 'package:examen_practic_sim/screens/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:examen_practic_sim/screens/screens.dart';
+import 'package:examen_practic_sim/services/services.dart';
+import 'package:examen_practic_sim/providers/providers.dart';
+import 'firebase_options.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+    
+  );
+
+  // Inicializar Firebase App Check
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity, // Para Android
+  );
 
   final prefs = await SharedPreferences.getInstance();
   final bool rememberMe = prefs.getBool('rememberMe') ?? false;
@@ -14,7 +26,9 @@ void main() async {
   final String? password = prefs.getString('password');
 
   runApp(MyApp(
-    startScreen: (rememberMe && email != null && password != null) ? HomeScreen() : LoginScreen(),
+    startScreen: (rememberMe && email != null && password != null)
+        ? HomeScreen() 
+        : LoginOrRegisterScreen(),
   ));
 }
 
@@ -25,11 +39,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Firebase Users App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: startScreen,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserService()),
+        ChangeNotifierProvider(create: (_) => LoginProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Firebase Users App',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        routes: {
+          '/': (context) => startScreen,
+          'home': (context) => HomeScreen(),
+          'logOrReg': (context) => LoginOrRegisterScreen(),
+          'detail': (_) => DetailScreen(),
+        },
+        initialRoute: '/',
+      ),
     );
   }
 }

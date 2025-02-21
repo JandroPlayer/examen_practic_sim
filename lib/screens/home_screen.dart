@@ -1,70 +1,73 @@
+import '../models/models.dart';
+import '../services/services.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:examen_practic_sim/screens/login_screen.dart';
-import 'package:examen_practic_sim/fakeapi/fakeapi.dart';
-import 'package:examen_practic_sim/models/user.dart';
+import '../widgets/widgets.dart';
+import '../ui/ui.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final FakeApi _api = FakeApi();
-  late Future<List<User>> _usersFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _usersFuture = _api.getAllUsers();
-  }
-
-  Future<void> _logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginScreen()),
-    );
-  }
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final userService = Provider.of<UserService>(context);
+    List<User> usuaris = userService.users;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Llistat Usuaris'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
-        ],
+        title: Text('Home Screen'),
       ),
-      body: FutureBuilder<List<User>>(
-        future: _usersFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No hi ha usuaris disponibles.'));
-          } else {
-            final users = snapshot.data!;
-            return ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                final user = users[index];
-                return ListTile(
-                  leading: CircleAvatar(backgroundImage: NetworkImage(user.photo)),
-                  title: Text(user.name),
-                  subtitle: Text(user.email),
+      body: usuaris.isEmpty
+          ? Loading()
+          : ListView.builder(
+              itemCount: usuaris.length,
+              itemBuilder: ((context, index) {
+                return Dismissible(
+                  key: UniqueKey(),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    alignment: AlignmentDirectional.centerEnd,
+                    color: Colors.red,
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                      child: Icon(Icons.delete, color: Colors.white),
+                    ),
+                  ),
+                  child: GestureDetector(
+                    child: UserCard(usuari: usuaris[index]),
+                    onTap: () {
+                      userService.tempUser = usuaris[index].copy();
+                      Navigator.of(context).pushNamed('detail');
+                    },
+                  ),
+                  onDismissed: (direction) {
+                    if (usuaris.length < 2) {
+                      userService.loadUsers();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content:
+                              Text('No es pot esborrar tots els elements!')));
+                    } else {
+                      userService.deleteUser(usuaris[index]);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              '${userService.users[index].name} esborrat')));
+                    }
+                  },
                 );
-              },
-            );
-          }
+              }),
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+           userService.tempUser = User(
+            id: '',
+            address: 'Example address',
+            email: 'email1@example.com',
+            name: 'Pep',
+            phone: '3434342',
+            photo: '',
+          );
+          Navigator.of(context).pushNamed('detail');
         },
+        child: const Icon(Icons.add),
       ),
     );
   }

@@ -1,13 +1,15 @@
-class User {
-  final String id;
-  final String address;
-  final String email;
-  final String name;
-  final String phone;
-  final String photo;
+import 'dart:convert';
 
+class User {
+  String? id;
+  String address;
+  String email;
+  String name;
+  String phone;
+  String photo;
+  
   User({
-    required this.id,
+    this.id,
     required this.address,
     required this.email,
     required this.name,
@@ -15,26 +17,52 @@ class User {
     required this.photo,
   });
 
-  // Deserialitzar JSON a objecte User
-  factory User.fromJson(String id, Map<String, dynamic> json) {
-    return User(
-      id: id,
-      address: json['address'] ?? '',
-      email: json['email'] ?? '',
-      name: json['name'] ?? '',
-      phone: json['phone'] ?? '',
-      photo: json['photo'] ?? '',
-    );
-  }
+  factory User.fromJson(String str) => User.fromMap(json.decode(str));
 
-  // Serialitzar objecte User a JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'address': address,
-      'email': email,
-      'name': name,
-      'phone': phone,
-      'photo': photo,
-    };
+  String toJson() => json.encode(toMap());
+
+  factory User.fromMap(Map<String, dynamic> json) => User(
+        id: json["id"] ?? '',  // Afegir valor per defecte en cas que sigui null
+        address: json["address"] ?? '',  // Comprovació per a camps nuls
+        email: json["email"] ?? '',
+        name: json["name"] ?? '',
+        phone: json["phone"] ?? '',
+        photo: json["photo"] ?? '',
+      );
+
+  Map<String, dynamic> toMap() => {
+        "id": id,
+        "address": address,
+        "email": email,
+        "name": name,
+        "phone": phone,
+        "photo": photo,
+      };
+
+  User copy() => User(
+        id: id,
+        address: address,
+        email: email,
+        name: name,
+        phone: phone,
+        photo: photo,
+      );
+
+  User copyWith({
+    String? id,
+    String? address,
+    String? email,
+    String? name,
+    String? phone,
+    String? photo,
+  }) {
+    return User(
+      id: id ?? this.id,
+      address: address ?? this.address,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      photo: photo ?? this.photo,
+    );
   }
 }
