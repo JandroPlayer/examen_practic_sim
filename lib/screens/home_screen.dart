@@ -15,6 +15,15 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home Screen'),
+         actions: [
+          // Logout button in the app bar
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              Navigator.of(context).pushReplacementNamed('logOrReg'); // Navigate to logOrReg screen
+            },
+          ),
+        ],
       ),
       body: usuaris.isEmpty
           ? Loading()
@@ -33,7 +42,14 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   child: GestureDetector(
-                    child: UserCard(usuari: usuaris[index]),
+                    child: ListTile(
+                      leading: UserAvatarWidget(
+                        photoUrl: usuaris[index].photo,
+                        name: usuaris[index].name,
+                      ),
+                      title: Text(usuaris[index].name),
+                      subtitle: Text(usuaris[index].email),
+                    ),
                     onTap: () {
                       userService.tempUser = usuaris[index].copy();
                       Navigator.of(context).pushNamed('detail');
@@ -57,13 +73,12 @@ class HomeScreen extends StatelessWidget {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-           userService.tempUser = User(
-            id: '',
+          userService.tempUser = User(
             address: 'Example address',
             email: 'email1@example.com',
             name: 'Pep',
             phone: '3434342',
-            photo: '',
+            photo: 'https://picsum.photos/250?image=9',
           );
           Navigator.of(context).pushNamed('detail');
         },

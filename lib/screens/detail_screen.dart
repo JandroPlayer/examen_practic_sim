@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../ui/input_decorations.dart';
+import '../widgets/widgets.dart';
 
 class DetailScreen extends StatelessWidget {
   DetailScreen({Key? key}) : super(key: key);
@@ -46,6 +47,14 @@ class _UserForm extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: 10),
+              // Conditionally display the initials or photo
+              tempUser.photo.isEmpty || tempUser.photo == 'url'
+                  ? UserAvatarWidget(
+                      photoUrl: tempUser.photo,
+                      name: tempUser.name,
+                    )
+                  : UserPhotoWidget(photoUrl: tempUser.photo, radius: 60), // Display photo if it's valid
+              SizedBox(height: 20), // Espacio entre la foto y el primer campo
               TextFormField(
                 initialValue: tempUser.name,
                 onChanged: (value) {

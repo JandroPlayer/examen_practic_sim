@@ -1,1 +1,2 @@
-export 'user_card.dart';
+export 'user_photo.dart';
+export 'user_avatar_widget.dart';

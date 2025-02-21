@@ -55,15 +55,16 @@ class UserService extends ChangeNotifier {
   }
 
   Future<void> saveOrCreateUser() async {
-    if (tempUser.id== null) {
-      // Cream l'usuari
-      await this.createUser();
-    } else {
-      // Actualitzam l'usuari
-      await this.updateUser();
-    }
-    loadUsers();
+  if (tempUser.id == null || tempUser.id == '') {
+    // Creamos el usuario y generamos la ID automáticamente
+    await this.createUser();
+  } else {
+    // Actualizamos el usuario si ya tiene una ID
+    await this.updateUser();
   }
+  loadUsers(); // Recargamos la lista de usuarios después de guardar o crear
+}
+
 
   Future<void> updateUser() async {
     final url = Uri.https(_baseUrl, 'users/${tempUser.id}.json');
@@ -72,10 +73,16 @@ class UserService extends ChangeNotifier {
   }
 
   Future<void> createUser() async {
-    final url = Uri.https(_baseUrl, 'users.json');
-    final response = await http.post(url, body: tempUser.toJson());
-    final decodedData = json.decode(response.body);
-  }
+  final url = Uri.https(_baseUrl, 'users.json');
+  final response = await http.post(url, body: tempUser.toJson());
+  
+  final decodedData = json.decode(response.body);
+  final newId = decodedData['name'];  // Firebase genera una ID en el campo 'name'
+
+  // Asignamos la ID generada a tempUser
+  tempUser = tempUser.copyWith(id: newId);
+}
+
 
   Future<void> deleteUser(User usuari) async {
     final url = Uri.https(_baseUrl, 'users/${usuari.id}.json');
